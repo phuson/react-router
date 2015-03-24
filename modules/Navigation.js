@@ -57,7 +57,7 @@ var Navigation = {
    * a new URL onto the history stack.
    */
   transitionTo: deprecatedMethod('transitionTo', function (to, params, query, payload) {
-    this.context.router.transitionTo(to, params, query);
+    this.context.router.transitionTo(to, params, query, payload);
   }),
 
   /**
@@ -65,7 +65,7 @@ var Navigation = {
    * the current URL in the history stack.
    */
   replaceWith: deprecatedMethod('replaceWith', function (to, params, query, payload) {
-    this.context.router.replaceWith(to, params, query);
+    this.context.router.replaceWith(to, params, query, payload);
   }),
 
   /**
