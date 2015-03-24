@@ -23,8 +23,8 @@ Transition.prototype.abort = function (reason) {
   if (this.abortReason == null) this.abortReason = reason || "ABORT";
 };
 
-Transition.prototype.redirect = function (to, params, query) {
-  this.abort(new Redirect(to, params, query));
+Transition.prototype.redirect = function (to, params, query, payload) {
+  this.abort(new Redirect(to, params, query, payload));
 };
 
 Transition.prototype.cancel = function () {
@@ -52,17 +52,17 @@ Transition.from = function (transition, routes, components, callback) {
   }, callback)();
 };
 
-Transition.to = function (transition, routes, params, query, callback) {
+Transition.to = function (transition, routes, params, query, payload, callback) {
   routes.reduceRight(function (callback, route) {
     return function (error) {
       if (error || transition.abortReason) {
         callback(error);
       } else if (route.onEnter) {
         try {
-          route.onEnter(transition, params, query, callback);
+          route.onEnter(transition, params, query, payload, callback);
 
           // If there is no callback in the argument list, call it automatically.
-          if (route.onEnter.length < 4) callback();
+          if (route.onEnter.length < 5) callback();
         } catch (e) {
           callback(e);
         }

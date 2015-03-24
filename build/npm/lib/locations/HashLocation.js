@@ -6,13 +6,15 @@ var History = require("../History");
 var _listeners = [];
 var _isListening = false;
 var _actionType;
+var _payload = [];
 
-function notifyChange(type) {
+function notifyChange(type, payload) {
   if (type === LocationActions.PUSH) History.length += 1;
 
   var change = {
     path: HashLocation.getCurrentPath(),
-    type: type
+    type: type,
+    payload: payload
   };
 
   _listeners.forEach(function (listener) {
@@ -36,7 +38,7 @@ function onHashChange() {
     // changed. It was probably caused by the user clicking the Back
     // button, but may have also been the Forward button or manual
     // manipulation. So just guess 'pop'.
-    notifyChange(_actionType || LocationActions.POP);
+    notifyChange(_actionType || LocationActions.POP, _payload.pop());
     _actionType = null;
   }
 }
@@ -79,13 +81,15 @@ var HashLocation = {
     }
   },
 
-  push: function push(path) {
+  push: function push(path, payload) {
     _actionType = LocationActions.PUSH;
+    _payload.push(payload);
     window.location.hash = path;
   },
 
-  replace: function replace(path) {
+  replace: function replace(path, payload) {
     _actionType = LocationActions.REPLACE;
+    _payload.push(payload);
     window.location.replace(window.location.pathname + window.location.search + "#" + path);
   },
 

@@ -217,14 +217,14 @@ function createRouter(options) {
        * Transitions to the URL specified in the arguments by pushing
        * a new URL onto the history stack.
        */
-      transitionTo: function transitionTo(to, params, query) {
+      transitionTo: function transitionTo(to, params, query, payload) {
         var path = Router.makePath(to, params, query);
 
         if (pendingTransition) {
           // Replace so pending location does not stay in history.
-          location.replace(path);
+          location.replace(path, payload);
         } else {
-          location.push(path);
+          location.push(path, payload);
         }
       },
 
@@ -232,8 +232,8 @@ function createRouter(options) {
        * Transitions to the URL specified in the arguments by replacing
        * the current URL in the history stack.
        */
-      replaceWith: function replaceWith(to, params, query) {
-        location.replace(Router.makePath(to, params, query));
+      replaceWith: function replaceWith(to, params, query, payload) {
+        location.replace(Router.makePath(to, params, query), payload);
       },
 
       /**
@@ -264,7 +264,7 @@ function createRouter(options) {
         if (abortReason instanceof Cancellation) {
           return;
         } else if (abortReason instanceof Redirect) {
-          location.replace(Router.makePath(abortReason.to, abortReason.params, abortReason.query));
+          location.replace(Router.makePath(abortReason.to, abortReason.params, abortReason.query), abortReason.payload);
         } else {
           location.pop();
         }
@@ -276,7 +276,7 @@ function createRouter(options) {
       },
 
       handleLocationChange: function handleLocationChange(change) {
-        Router.dispatch(change.path, change.type);
+        Router.dispatch(change.path, change.type, change.payload);
       },
 
       /**
@@ -295,13 +295,14 @@ function createRouter(options) {
        * transition. To resolve asynchronously, they may use the callback argument. If no
        * hooks wait, the transition is fully synchronous.
        */
-      dispatch: function dispatch(path, action) {
+      dispatch: function dispatch(path, action, payload) {
         Router.cancelPendingTransition();
 
         var prevPath = state.path;
         var isRefreshing = action == null;
 
-        if (prevPath === path && !isRefreshing) {
+        var hasPayload = payload != null;
+        if (prevPath === path && !isRefreshing && !hasPayload) {
           return;
         } // Nothing to do!
 
@@ -322,6 +323,7 @@ function createRouter(options) {
         var nextRoutes = match.routes || [];
         var nextParams = match.params || {};
         var nextQuery = match.query || {};
+        var nextPayload = payload || {};
 
         var fromRoutes, toRoutes;
         if (prevRoutes.length) {
@@ -345,14 +347,15 @@ function createRouter(options) {
         Transition.from(transition, fromRoutes, fromComponents, function (error) {
           if (error || transition.abortReason) return dispatchHandler.call(Router, error, transition); // No need to continue.
 
-          Transition.to(transition, toRoutes, nextParams, nextQuery, function (error) {
+          Transition.to(transition, toRoutes, nextParams, nextQuery, nextPayload, function (error) {
             dispatchHandler.call(Router, error, transition, {
               path: path,
               action: action,
               pathname: match.pathname,
               routes: nextRoutes,
               params: nextParams,
-              query: nextQuery
+              query: nextQuery,
+              payload: nextPayload
             });
           });
         });

@@ -55,7 +55,7 @@ var Navigation = {
    * Transitions to the URL specified in the arguments by pushing
    * a new URL onto the history stack.
    */
-  transitionTo: deprecatedMethod("transitionTo", function (to, params, query) {
+  transitionTo: deprecatedMethod("transitionTo", function (to, params, query, payload) {
     this.context.router.transitionTo(to, params, query);
   }),
 
@@ -63,7 +63,7 @@ var Navigation = {
    * Transitions to the URL specified in the arguments by replacing
    * the current URL in the history stack.
    */
-  replaceWith: deprecatedMethod("replaceWith", function (to, params, query) {
+  replaceWith: deprecatedMethod("replaceWith", function (to, params, query, payload) {
     this.context.router.replaceWith(to, params, query);
   }),
 
